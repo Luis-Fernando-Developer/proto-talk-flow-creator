@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+
 
 type typeItem = {
  id: string
@@ -20,6 +21,29 @@ const WorkspaceContext = createContext<WorkspaceContextType | null>(null);
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
  
  const [items, setItems] = useState<typeItem[]>([]);
+
+ useEffect(() => {
+   try {
+     const raw = localStorage.getItem('workspace_folders_v1');
+     if (raw) {
+       const parsed = JSON.parse(raw) as typeItem[];
+
+       if (Array.isArray(parsed)) {
+         setItems(parsed);
+       }
+     }
+   } catch (error) {
+     console.error('Falha ao ler pastas do localStorage', error);
+   }
+ }, []);
+
+ useEffect(() => {
+  try {
+   localStorage.setItem('workspace_folders_v1', JSON.stringify(items));
+  } catch (error) {
+   console.error('Falha ao salvar pastas no localStorage', error);
+  }
+ }, [items]);
 
  return (
    <WorkspaceContext.Provider value={{ items, setItems }}>
