@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import BotIcon from './BotIcon';
 import { useRouter } from 'next/navigation';
+import { CreateBotDTO, CreateFolderDTO, WorkspaceItemType } from '@/types/workspace/workspaceTypes';
 
 
 const FolderComponent: any = Folder;
@@ -17,25 +18,7 @@ const FolderComponent: any = Folder;
 export default function WorkspaceMain() {
   // type  = | {id: string, type: "folder", title: string, description: string} | {id: string, type: "bot", title: string, description: string}
 
-  type CreateFolderDTO = {
-    title: string
-    description: string
-    parentId: string | null
-  }
-  type CreateBotDTO = {
-    title: string
-    description: string
-    parentId: string | null
-  }
-
-  type TypeItem = {
-    id: string
-    type: "folder" | "bot"
-    title: string
-    description: string
-    indexItem: number
-    parentId: string | null
-  }
+  
 
   const router = useRouter();
 
@@ -45,7 +28,7 @@ export default function WorkspaceMain() {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [currentBotId, setCurrentBotId] = useState<string | null>(null);
 
-  const [typeItem, setTypeItem] = useState<TypeItem[]>([]);
+  const [typeItem, setTypeItem] = useState<WorkspaceItemType[]>([]);
 
   // flag para só renderizar a lista real após carregar localStorage
   const [mounted, setMounted] = useState(false);
@@ -66,7 +49,7 @@ export default function WorkspaceMain() {
       if (typeof window === 'undefined') return;
       const raw = localStorage.getItem('workspace_folders_v1');
       if (raw) {
-        const parsed = JSON.parse(raw) as TypeItem[];
+        const parsed = JSON.parse(raw) as WorkspaceItemType[];
         if (Array.isArray(parsed)) setTypeItem(parsed);
       }
     } catch (e) {
@@ -88,20 +71,20 @@ export default function WorkspaceMain() {
   }, [typeItem, mounted]);
 
   function handlerCreateFolder(data: CreateFolderDTO) {
-    const newFolder: TypeItem = {
+    const newFolder: WorkspaceItemType = {
       id: crypto.randomUUID(),
       type: "folder",
       indexItem: 0,
       ...data
     }
     setTypeItem(prev => [...prev, newFolder]);
-    // setFolderName('');
-    // setFolderDescription('');
-    // setOpenModalADD(false);
+    setFolderName('');
+    setFolderDescription('');
+    setOpenModalADD(false);
   }
 
   function handlerCreateBot(data: CreateBotDTO) {
-    const newBot: TypeItem = {
+    const newBot: WorkspaceItemType = {
       id: crypto.randomUUID(),
       type: "bot",
       indexItem: 0,
@@ -223,7 +206,7 @@ export default function WorkspaceMain() {
                         <input type="text" placeholder="Nome do Bot" value={botName} onChange={(e) => setBotName(e.target.value)} className="border p-2 rounded-md w-full" />
                         <input type="text" placeholder="Descrição do Bot" value={botDescription} onChange={(e) => setBotDescription(e.target.value)} className="border p-2 rounded-md w-full mt-2" />
                         <div className='flex space-x-2'>
-                          <button onClick={() => { handlerCreateBot({title: botName, description: botDescription, parentId: currentBotId }); setBotName(''); setBotDescription(''); }} className="bg-blue-500 text-white p-2 rounded-md mt-2">Criar Bot</button>
+                          <button onClick={() => { handlerCreateBot({title: botName, description: botDescription, parentId: currentFolderId }); setBotName(''); setBotDescription(''); }} className="bg-blue-500 text-white p-2 rounded-md mt-2">Criar Bot</button>
                           <button className="bg-red-500 text-white p-2 rounded-md mt-2" onClick={() => setOpenModalADD(false)}>Cancelar</button>
                         </div>
                       </div>
