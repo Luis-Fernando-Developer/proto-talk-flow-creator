@@ -14,6 +14,6 @@
     type: "folder" | "bot"
     title: string
     description: string
-    indexItem: number
+    indexItem?: number
     parentId: string | null
   }

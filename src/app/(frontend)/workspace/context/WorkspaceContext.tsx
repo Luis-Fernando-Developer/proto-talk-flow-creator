@@ -47,6 +47,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
  return (
    <WorkspaceContext.Provider value={{ items, setItems }}>
+      <div>
+      </div>
      {children}
    </WorkspaceContext.Provider>
  )
