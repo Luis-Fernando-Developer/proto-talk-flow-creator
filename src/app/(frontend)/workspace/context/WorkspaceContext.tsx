@@ -7,6 +7,7 @@ type typeItem = {
  id: string
  title: string
  description: string
+ emoji: string
  parentId: string | null
  type: "folder" | "bot"
 }

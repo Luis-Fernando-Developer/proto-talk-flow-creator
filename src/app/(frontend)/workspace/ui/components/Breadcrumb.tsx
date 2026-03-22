@@ -44,13 +44,13 @@ function handleBack() {
  }
 
  return (
-  <div className="p-3 flex items-center ">
+  <div className="p-3 h-12 flex items-center border-b">
    {folderId && (
-    <button onClick={handleBack}><ArrowLeft className="w-4 h-4"  /></button>
+    <button onClick={handleBack}><ArrowLeft className="w-7 h-7 rounded-lg border p-1 text-white bg-gray-500/50 shadow-black shadow-[2px_3px_6px_-1px]"  /></button>
    )}
     {path.map(folder => (
-     <div className="flex items-center justify-center" key={folder.id} onClick={() => router.push(`/workspace/folder/${folder.id}`)}>
-      <p className="flex items-center mr-2 ml-2 justify-center"> {folder.title} </p>
+     <div className="flex items-start justify-center relative  text-gray-500 font-semibold" key={folder.id} onClick={() => router.push(`/workspace/folder/${folder.id}`)}>
+      <p className={`flex items-center mr-2 ml-2 justify-center ${folder.id === folderId ? 'font-bold text-green-400' : ''}`}> {folder.title} </p>
       <p className={`${folder.id === folderId ? 'hidden' : 'flex justify-center items-center'}`}> / </p>
      </div>
     ))}

@@ -1,56 +1,72 @@
 "use client"
 
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { EllipsisVertical, Trash2, FolderPen } from 'lucide-react'
+import { EllipsisVertical, Trash2, FolderPen, SquareMenuIcon, CirclePowerIcon } from 'lucide-react'
 import React from 'react'
 
 interface BotIconProps {
   title: string
   description: string
+  emojiIcon: string
   onClick?: () => void
 }
 
-export default function BotIcon({ title, description, onClick }: BotIconProps) {
+export default function BotIcon({ title, description, emojiIcon, onClick }: BotIconProps) {
 
-    // after:content-['']
-    // after:absolute
-    // after:-top-[1.5px]
-    // after:-left-[1px]
-    // after:w-[17px]
-    // after:h-[8px]
-    // after:bg-gray-950       
-    // after:rounded-tl-md
-    // after:border
-    // after:border-gray-700
-    // after:border-t-gray-700
-    // after:border-r-0
-    // after:border-b-0
-    // after:-z-10
-
+  const [isBotActive, setIsBotActive] = React.useState(true);
   const [optionBot, setOptionBot] = React.useState< 'Excluir' | 'Editar'>('Editar');
 
   return (
-    <div className="relative z-0 w-24 h-16 bg-gray-400 border">
-          <div className="relative z-20 flex  items-center ">
-            <DropdownMenu.Root >
-              <DropdownMenu.Trigger asChild>
-                <EllipsisVertical className="absolute z-10 right-0.5 w-3 h-2 top-0 text-white cursor-pointer" />
-              </DropdownMenu.Trigger>
-    
-              <DropdownMenu.Content className=" flex flex-col w-24 max-w-20 z-10 rounded-md p-1">
-                {/* <DropdownMenu.Item className='divide-y-2 text-sm text-white' onClick={() => setOptionFolder('Renomear')}> Renomear</DropdownMenu.Item> */}
-                <DropdownMenu.Item className=' flex w-full text-sm text-white items-center justify-between gap-1 text-left' onClick={() => setOptionBot('Excluir')}><Trash2 className='w-3 h-3' /> <span className='text-left flex flex-1'>Excluir</span></DropdownMenu.Item>
-                <DropdownMenu.Separator className='w-full h-0 flex border border-gray-700/20' />
-                <DropdownMenu.Item className=' flex w-full text-sm text-white items-center justify-between gap-1 text-left' onClick={() => setOptionBot('Editar')}><FolderPen className='w-3 h-3' /> <span className='text-left flex flex-1'>Editar</span></DropdownMenu.Item>
-              </DropdownMenu.Content>
-    
-            </DropdownMenu.Root>
-            <div className=' relative px-1 flex flex-col  w-full justify-between h-full py-2 overflow-hidden'>
-              <span className="text-[10px]">{title}</span>
-              <p className=' text-[10px] w-full text-xs text-gray-500 overflow-hidden text-nowrap overflow-ellipsis flex-wrap max-h-4'>{description}</p>
-            </div>
-          </div>
-        </div>
-  )
+			<Card
+				onClick={onClick}
+				className=" group hover:border-green-400 p-2 flex flex-col bg-[rgb(70,1,92)] gap-0 w-28 max-h-32 h-32 rounded-lg border border-white shadow-[3px_3px_5px_rgba(0,0,0,0.5)]"
+			>
+				<CardHeader className="p-0 m-0 items-end  flex-row justify-center w-full">
+					<DropdownMenu.Root>
+						<div
+							className={`flex w-full items-center p-0 gap-0.5 text-sm h-5 ${isBotActive ? "text-green-400" : "text-red-400"}`}
+						>
+							{isBotActive ? (
+								<CirclePowerIcon className="w-4 h-4 text-white p-0 rounded-full bg-green-400" />
+							) : (
+								<CirclePowerIcon className="w-4 h-4 text-white p-0 rounded-full bg-red-400" />
+							)}
+							{isBotActive ? "On" : "Off"}
+						</div>
+						<DropdownMenu.Trigger
+							asChild
+							className=" flex items-center justify-end p-0 "
+						>
+							<SquareMenuIcon className="w-5 h-5 hover:cursor-pointer text-white" />
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content className="absolute shadow-[3px_3px_5px_rgba(0,0,0,0.5)] -right-4 -top-1.5 bg-gray-600 flex flex-col w-24 max-w-20 z-10 rounded-sm p-1">
+							{/* <DropdownMenu.Item className='divide-y-2 text-sm text-white' onClick={() => setOptionFolder('Renomear')}> Renomear</DropdownMenu.Item> */}
+							<DropdownMenu.Item
+								className=" flex w-full text-sm text-white items-center justify-between gap-1 text-left"
+								onClick={() => setOptionBot("Excluir")}
+							>
+								<Trash2 className="w-3 h-3" />
+								<span className="text-left flex flex-1">Excluir</span>
+							</DropdownMenu.Item>
+							<DropdownMenu.Separator className="w-full h-0 flex border border-gray-700/20" />
+							<DropdownMenu.Item
+								className=" flex w-full text-sm text-white items-center justify-between gap-1 text-left"
+								onClick={() => setOptionBot("Editar")}
+							>
+								<FolderPen className="w-3 h-3" />
+								<span className="text-left flex flex-1">Editar</span>
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+				</CardHeader>
+				<CardContent className=" p-0 pt-3 flex flex-col  w-full h-full items-center overflow-hidden">
+					<span className=" w-full text-2xl flex items-center justify-center text-white">
+						{emojiIcon}
+					</span>
+					<span className="text-xs text-gray-400">{title}</span>
+				</CardContent>
+			</Card>
+		);
 }

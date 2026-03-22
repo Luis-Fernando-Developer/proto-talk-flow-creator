@@ -16,6 +16,8 @@ import { useState } from "react";
 import { useWorkspace } from "./context/WorkspaceContext";
 import { usePathname } from "next/navigation";
 import Breadcrumb from "./ui/components/Breadcrumb";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { Plus } from "lucide-react";
 
 export default function WorkspaceLayout({
 	children,
@@ -34,8 +36,11 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 
 	const pathname = usePathname();
 
+	const showToolbar = pathname === "/workspace" ||	pathname.startsWith("/workspace/folder/");
+
 	const [openModalADD, setOpenModalADD] = useState(false);
 	const [addOption, setAddOption] = useState<"folder" | "bot">("folder");
+
 
 	const [folderName, setFolderName] = useState("");
 	const [folderDescription, setFolderDescription] = useState("");
@@ -48,7 +53,17 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 		return pathname.split("/folder/")[1];
 	}
 
+	const defaultFolderEmoji = "📁";
+	const defaultBotEmoji = "🤖";
+
+	const folderEmojis = ["📁", "📂", "🗂️", "🗃️", "🧾"];
+	const botEmojis = ["🤖", "🦾", "🧠", "🛰️", "🛠️"];
+
+	const [folderEmoji, setFolderEmoji] = useState<string>(defaultFolderEmoji);
+	const [botEmoji, setBotEmoji] = useState<string>(defaultBotEmoji);
+
 	const currentFolderId = getCurrentFolderId();
+
 
 	function createFolder() {
 		setItems((prev) => [
@@ -59,6 +74,7 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 				indexItem: 0,
 				title: folderName,
 				description: folderDescription,
+				emoji: folderEmoji,
 				parentId: currentFolderId,
 			},
 		]);
@@ -66,6 +82,7 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 		setFolderName("");
 		setFolderDescription("");
 		setOpenModalADD(false);
+		setFolderEmoji(defaultFolderEmoji);
 	}
 
 	function createBot() {
@@ -75,6 +92,7 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 				id: crypto.randomUUID(),
 				type: "bot",
 				indexItem: 0,
+				emoji: botEmoji,
 				title: botName,
 				description: botDescription,
 				parentId: currentFolderId,
@@ -84,6 +102,7 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 		setBotName("");
 		setBotDescription("");
 		setOpenModalADD(false);
+		setBotEmoji(defaultBotEmoji);
 	}
 
 	return (
@@ -91,7 +110,8 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 			<Header />
 			<Breadcrumb />
 
-			<main className='flex '>
+			<main className="flex ">
+				{showToolbar && (
 					<div className="px-3 pt-3 ">
 						<AddOptionToolbar
 							onAddFolder={() => {
@@ -104,9 +124,8 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 							}}
 						/>
 					</div>
-					<div className=' w-full'>
-				{children}
-					</div>
+				)}
+				<div className=" w-full">{children}</div>
 				<Toaster />
 			</main>
 
@@ -118,12 +137,45 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 								<DialogTitle>Adicionar Nova Pasta</DialogTitle>
 							</DialogHeader>
 
-							<input
-								placeholder="Nome da pasta"
-								value={folderName}
-								onChange={(e) => setFolderName(e.target.value)}
-								className="border p-2 rounded-md w-full"
-							/>
+							{/* SELETOR DE EMOJI (PASTA) */}
+							<div className="mb-2 flex items-center gap-2">
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger asChild>
+										<button className="px-3 py-2 rounded-md border flex items-center gap-2">
+											<span className="text-xl">{folderEmoji}</span>
+											<span className="text-sm">Selecionar emoji</span>
+										</button>
+									</DropdownMenu.Trigger>
+
+									<DropdownMenu.Content
+										sideOffset={6}
+										className="p-2 bg-white rounded-md shadow-md"
+									>
+										{folderEmojis.map((emo) => (
+											<DropdownMenu.Item
+												key={emo}
+												className="p-1 rounded-md hover:bg-gray-100"
+												onSelect={() => setFolderEmoji(emo)}
+											>
+												<button className="w-full text-left">{emo}</button>
+											</DropdownMenu.Item>
+										))}
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
+
+								{/* input do nome da pasta com preview do emoji */}
+								<div className="flex-1">
+									<div className="flex items-center gap-2">
+										<span className="text-2xl">{folderEmoji}</span>
+										<input
+											placeholder="Nome da pasta"
+											value={folderName}
+											onChange={(e) => setFolderName(e.target.value)}
+											className="border p-2 rounded-md w-full"
+										/>
+									</div>
+								</div>
+							</div>
 
 							<input
 								placeholder="Descrição"
@@ -147,12 +199,45 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 								<DialogTitle>Adicionar Novo Bot</DialogTitle>
 							</DialogHeader>
 
-							<input
-								placeholder="Nome do bot"
-								value={botName}
-								onChange={(e) => setBotName(e.target.value)}
-								className="border p-2 rounded-md w-full"
-							/>
+							{/* SELETOR DE EMOJI (BOT) */}
+							<div className="mb-2 flex items-center gap-2">
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger asChild>
+										<button className="px-3 py-2 rounded-md border flex items-center gap-2">
+											<span className="text-xl">{botEmoji}</span>
+											<span className="text-sm">Selecionar emoji</span>
+										</button>
+									</DropdownMenu.Trigger>
+
+									<DropdownMenu.Content
+										sideOffset={6}
+										className="p-2 bg-white rounded-md shadow-md"
+									>
+										{botEmojis.map((emo) => (
+											<DropdownMenu.Item
+												key={emo}
+												className="p-1 rounded-md hover:bg-gray-100"
+												onSelect={() => setBotEmoji(emo)}
+											>
+												<button className="w-full text-left">{emo}</button>
+											</DropdownMenu.Item>
+										))}
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
+
+								{/* input do nome do bot com preview do emoji */}
+								<div className="flex-1">
+									<div className="flex items-center gap-2">
+										<span className="text-2xl">{botEmoji}</span>
+										<input
+											placeholder="Nome do bot"
+											value={botName}
+											onChange={(e) => setBotName(e.target.value)}
+											className="border p-2 rounded-md w-full"
+										/>
+									</div>
+								</div>
+							</div>
 
 							<input
 								placeholder="Descrição"
