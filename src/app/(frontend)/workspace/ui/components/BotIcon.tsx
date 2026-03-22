@@ -7,13 +7,15 @@ import { EllipsisVertical, Trash2, FolderPen, SquareMenuIcon, CirclePowerIcon } 
 import React from 'react'
 
 interface BotIconProps {
-  title: string
-  description: string
-  emojiIcon: string
-  onClick?: () => void
+	id?: string;
+	title: string;
+	description: string;
+	emojiIcon: string;
+	onClick?: () => void;
+	onDrop?: (draggedItemId: string) => void;
 }
 
-export default function BotIcon({ title, description, emojiIcon, onClick }: BotIconProps) {
+export default function BotIcon({ id, title, description, emojiIcon, onClick }: BotIconProps) {
 
   const [isBotActive, setIsBotActive] = React.useState(true);
   const [optionBot, setOptionBot] = React.useState< 'Excluir' | 'Editar'>('Editar');

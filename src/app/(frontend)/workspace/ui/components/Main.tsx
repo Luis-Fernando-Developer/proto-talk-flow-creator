@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import FolderIcon from "./FolderIcon"
@@ -13,7 +13,7 @@ export default function WorkspaceMain() {
 
   const router = useRouter()
 
-  const { items } = useWorkspace()
+  const { items, setItems } = useWorkspace()
 
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null)
   const [currentBotId, setCurrentBotId] = useState<string | null>(null)
@@ -22,20 +22,70 @@ export default function WorkspaceMain() {
     item => item.parentId === currentFolderId
   )
 
+  useEffect(() => {
+    console.log("items atualizados", items)
+  }, [items])
+
+  function handleDropRoot(e: React.DragEvent) {
+    e.preventDefault()
+    const draggedId = e.dataTransfer.getData("text/plain")
+    setItems(prev =>
+      prev.map(item =>
+        item.id === draggedId ? { ...item, parentId: null } : item
+      )
+    )
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault()
+  }
+
   return (
-	  <div className="w-full h-full flex px-3 gap-3 ">
+	  <div 
+      className="w-full h-full flex px-3 gap-3 "
+      onDrop={handleDropRoot}
+      onDragOver={handleDragOver}
+    >
       <div className={` pt-3 h-full  w-full ${items.length > 0 ? 'flex flex-col ' : 'flex items-center '}`}>
         {currentItems.length > 0 ? (
+
           <div className='grid grid-cols-3 sm:grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 2xl:grid-cols-8'>
+            
             {currentItems.map(item => (
               <div key={item.id} className='w-fit'>
+                
                 {item.type === 'folder' ? (
-                  <FolderIcon onClick={() => {console.log("Clicou na pasta:", item.id)
-                    router.push(`/workspace/folder/${item.id}`);
-                    setCurrentFolderId(item.id)}} emojiIcon={item.emoji} title={item.title} description={item.description} />
+                  <FolderIcon 
+                    id={item.id} 
+                    emojiIcon={item.emoji}
+                    title={item.title}
+                    description={item.description}
+                    onClick={() => {
+                      router.push(`/workspace/folder/${item.id}`)
+                      setCurrentFolderId(item.id);
+                    }}
+                    onDrop={(draggedId) => {
+                      console.log("DROP:", draggedId, "->", item.id)
+                       setItems((prev) => {
+                        const updated = prev.map((it) =>
+                          it.id === draggedId
+                            ? { ...it, parentId: item.id }
+                            : it
+                        )
+                        return [...updated]
+                       })
+                    }}
+                  />
                 ) : (
-                  <BotIcon onClick={() => {console.log("Clicou no bot:", item.id)
-                    setCurrentBotId(item.id)}} emojiIcon={item.emoji} title={item.title} description={item.description} />
+                  <BotIcon
+                    id={item.id}
+                    emojiIcon={item.emoji}
+                    title={item.title}
+                    description={item.description}
+                    onClick={() => {
+                      setCurrentBotId(item.id)
+                    }}
+                  />
                 )}
               </div>
             ))}
