@@ -28,6 +28,9 @@ export default function WorkspaceMain() {
 
   function handleDropRoot(e: React.DragEvent) {
     e.preventDefault()
+
+    if(e.target !== e.currentTarget) return;
+
     const draggedId = e.dataTransfer.getData("text/plain")
     setItems(prev =>
       prev.map(item =>

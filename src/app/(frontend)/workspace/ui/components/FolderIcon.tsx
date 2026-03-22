@@ -38,6 +38,8 @@ export default function FolderIcon({ id, title, emojiIcon, description, onClick,
 
 		function handleDrop(e: React.DragEvent) {
 			e.preventDefault();
+			e.stopPropagation();
+			
 			setOver(false);
 			const draggedId = e.dataTransfer.getData("text/plain");
 			if (draggedId && onDrop) onDrop(draggedId);

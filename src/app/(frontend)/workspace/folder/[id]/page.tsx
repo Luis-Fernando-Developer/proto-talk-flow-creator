@@ -16,7 +16,7 @@ export default function FolderPage() {
 
 	const { items, setItems } = useWorkspace();
 
-	const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+	// const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
 
 	const [currentBotId, setCurrentBotId] = useState<string | null>(null);
 
@@ -28,13 +28,14 @@ export default function FolderPage() {
 
 	function handleDropRoot(e: React.DragEvent) {
 		e.preventDefault();
-		
+
+		if (e.target !== e.currentTarget) return;
+
 		const draggedId = e.dataTransfer.getData("text/plain");
-		
-		setItems(prev =>
-			prev.map(item =>
-				item.id === draggedId ? { ...item, parentId: null } : item
-			)
+		setItems((prev) =>
+			prev.map((item) =>
+				item.id === draggedId ? { ...item, parentId: null } : item,
+			),
 		);
 	}
 
@@ -55,15 +56,26 @@ export default function FolderPage() {
 						{currentItems.map((item) => (
 							<div key={item.id} className='w-fit'>
 								{item.type === "folder" ? (
-									<FolderIcon
-										id={item.id}
-										emojiIcon={item.emoji ?? "📁"}
-										title={item.title}
-										description={item.description}
-										onClick={() => {
-											// console.log("Clicou na pasta:", item.id);
-											router.push(`/workspace/folder/${item.id}`);
-										}}
+									<FolderIcon 
+											id={item.id} 
+											emojiIcon={item.emoji}
+											title={item.title}
+											description={item.description}
+											onClick={() => {
+													router.push(`/workspace/folder/${item.id}`)
+													// setCurrentFolderId(item.id);
+											}}
+											onDrop={(draggedId) => {
+													console.log("DROP:", draggedId, "->", item.id)
+														setItems((prev) => {
+															const updated = prev.map((it) =>
+																	it.id === draggedId
+																			? { ...it, parentId: item.id }
+																			: it
+															)
+															return [...updated]
+														})
+											}}
 									/>
 								) : (
 									<BotIcon
