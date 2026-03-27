@@ -1,8 +1,6 @@
 'use client'
 
-import { Settings, UserCircle2 } from 'lucide-react'
-import React, { useState } from 'react'
-import * as Dialog from '@radix-ui/react-dialog';
+import { Settings } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useRouter } from 'next/navigation';
 
@@ -12,7 +10,7 @@ export default function Header() {
   const router = useRouter();
 
   return (
-    <div className='w-full bg-gray-800 text-white flex flex-col justify-between py-2 px-9'>
+    <div className='absolute top-0 left-0 h-16 w-full bg-gray-800 text-white flex flex-col justify-between py-2 px-9'>
       <h1 className='w-full text-center'>Talk-Flow-Creator</h1>
       <div className=' flex w-full justify-between'>
         <span>WORKSPACE</span>
@@ -26,8 +24,8 @@ export default function Header() {
             <DropdownMenu.Item className='select-none outline-none cursor-pointer px-3 rounded-md data-[highlighted]:bg-gray-100 data-[highlighted]:text-green-500' 
               onClick={() => router.push(
                 '/workspace/configs')}>CONFIGURAÇÕES</DropdownMenu.Item>
-
           </DropdownMenu.Content>
+
         </DropdownMenu.Root>
 
         

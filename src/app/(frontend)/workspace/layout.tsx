@@ -17,7 +17,7 @@ import { useWorkspace } from "./context/WorkspaceContext";
 import { usePathname } from "next/navigation";
 import Breadcrumb from "./ui/components/Breadcrumb";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Plus } from "lucide-react";
+import FoldersSidebarNavigation from "./ui/components/FoldersSidebarNavigation";
 
 export default function WorkspaceLayout({
 	children,
@@ -106,28 +106,32 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<div>
+		<div className="flex flex-col h-svh relative overflow-y-hidden">
 			<Header />
 			<Breadcrumb />
-
-			<main className="flex ">
-				{showToolbar && (
-					<div className="px-3 pt-3 ">
-						<AddOptionToolbar
-							onAddFolder={() => {
-								setAddOption("folder");
-								setOpenModalADD(true);
-							}}
-							onAddBot={() => {
-								setAddOption("bot");
-								setOpenModalADD(true);
-							}}
-						/>
-					</div>
-				)}
-				<div className=" w-full">{children}</div>
-				<Toaster />
-			</main>
+			<div className="flex-1 flex relative overflow-hidden">
+				<div className='flex '>
+					<FoldersSidebarNavigation />
+					{showToolbar && (
+						<div className="px-3 pt-3 ">
+							<AddOptionToolbar
+								onAddFolder={() => {
+									setAddOption("folder");
+									setOpenModalADD(true);
+								}}
+								onAddBot={() => {
+									setAddOption("bot");
+									setOpenModalADD(true);
+								}}
+							/>
+						</div>
+					)}
+				</div>
+				<main className="flex flex-1 w-full border border-red-600 overflow-hidden">
+					<div className=" w-full flex items-start justify-center flex-1 border border-green-600 overflow-y-auto">{children}</div>
+					<Toaster />
+				</main>
+			</div>
 
 			<Dialog open={openModalADD} onOpenChange={setOpenModalADD}>
 				<DialogContent>

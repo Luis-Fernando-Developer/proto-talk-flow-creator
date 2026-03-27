@@ -7,7 +7,6 @@ import FolderIcon from "./FolderIcon"
 import BotIcon from "./BotIcon"
 
 import { useWorkspace } from "../../context/WorkspaceContext"
-import { WorkspaceItemType } from "@/types/workspace/workspaceTypes"
 
 export default function WorkspaceMain() {
 
@@ -44,12 +43,12 @@ export default function WorkspaceMain() {
   }
 
   return (
-	  <div 
-      className="w-full h-full flex px-3 gap-3 "
-      onDrop={handleDropRoot}
-      onDragOver={handleDragOver}
+    <div 
+    className="w-full h-full flex px-3 gap-3 "
+    onDrop={handleDropRoot}
+    onDragOver={handleDragOver}
     >
-      <div className={` pt-3 h-full  w-full ${items.length > 0 ? 'flex flex-col ' : 'flex items-center '}`}>
+      <div className={` pt-3 h-full  w-full ${items.length > 0 ? 'flex flex-col items-start justify-start h-full border-2 border-yellow-400 ' : 'flex items-center border-2 border-black'}`}>
         {currentItems.length > 0 ? (
 
           <div className='grid grid-cols-3 sm:grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 2xl:grid-cols-8'>
@@ -93,7 +92,8 @@ export default function WorkspaceMain() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : 
+        (
           <div className='text-gray-500 flex h-full w-full flex-col justify-center items-center '>
             <p>Nenhuma pasta criada</p>
             <p>ou</p>

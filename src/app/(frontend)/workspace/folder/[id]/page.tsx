@@ -16,8 +16,6 @@ export default function FolderPage() {
 
 	const { items, setItems } = useWorkspace();
 
-	// const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-
 	const [currentBotId, setCurrentBotId] = useState<string | null>(null);
 
 	const currentFolder = items.find((item) => item.id === folderId);
