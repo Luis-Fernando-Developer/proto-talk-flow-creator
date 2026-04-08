@@ -3,39 +3,27 @@
 import { useWorkspace } from "./WorkspaceContext";
 import {
 	DndContext,
-	closestCenter,
+	pointerWithin,
 	DragEndEvent,
 	PointerSensor,
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
-import { useMemo } from "react";
 
 export default function DnDProvider({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const { items, setItems } = useWorkspace();
+	const { setItems } = useWorkspace();
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
 			activationConstraint: {
-				distance: 8, // 👈 precisa mover 8px pra virar drag
+				distance: 8,
 			},
 		}),
 	);
-
-	function isDescendant(folderId: string, possibleChildId: string) {
-		const visited = new Set<string>();
-		let current = items.find((item) => item.id === possibleChildId);
-		while (current?.parentId && !visited.has(current.id)) {
-			visited.add(current.id);
-			if (current.parentId === folderId) return true;
-			current = items.find((item) => item.id === current!.parentId);
-		}
-		return false;
-	}
 
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
@@ -43,84 +31,98 @@ export default function DnDProvider({
 
 		const draggedId = active.id as string;
 		const overId = over.id as string;
+
 		if (draggedId === overId) return;
 
 		const activeZone = active.data.current?.zone as string | undefined;
 		const overZone = over.data.current?.zone as string | undefined;
 
-		const activeItem = items.find((item) => item.id === draggedId);
-		const overItem = items.find((item) => item.id === overId);
+		const overIsGridRoot =
+			overId === "GRID_ROOT_MAIN" || overId === "GRID_ROOT_FOLDER";
 
-		const overIsGridRoot = overId === "GRID_ROOT";
 		const overIsSidebarRoot = overId === "SIDEBAR_ROOT";
 
-		if (!activeItem) return;
+		// 🔥 TODA LÓGICA AGORA ACONTECE AQUI DENTRO
+		setItems((prev) => {
+			const activeItem = prev.find((item) => item.id === draggedId);
+			const overItem = prev.find((item) => item.id === overId);
 
-		// sidebar items cannot be dropped into grid
-		if (activeZone === "SIDEBAR" && overZone === "GRID") return;
+			if (!activeItem) return prev;
 
-		// moving into grid root
-		if (overIsGridRoot) {
-			if (activeZone === "GRID") {
-				setItems((prev) =>
-					prev.map((item) =>
+			function isDescendant(folderId: string, possibleChildId: string) {
+				const visited = new Set<string>();
+				let current = prev.find((item) => item.id === possibleChildId);
+
+				while (current?.parentId && !visited.has(current.id)) {
+					visited.add(current.id);
+					if (current.parentId === folderId) return true;
+					current = prev.find((item) => item.id === current!.parentId);
+				}
+
+				return false;
+			}
+
+			// ❌ Sidebar NÃO pode ir pra grid
+			if (activeZone === "SIDEBAR" && overZone === "GRID") {
+				return prev;
+			}
+
+			// ✅ GRID → ROOT
+			if (overIsGridRoot) {
+				if (activeZone === "GRID") {
+					return prev.map((item) =>
 						item.id === draggedId ? { ...item, parentId: null } : item,
-					),
+					);
+				}
+				return prev;
+			}
+
+			// ✅ QUALQUER COISA → SIDEBAR ROOT
+			if (overIsSidebarRoot) {
+				return prev.map((item) =>
+					item.id === draggedId ? { ...item, parentId: null } : item,
 				);
 			}
-			return;
-		}
 
-		// moving into sidebar root (top-level)
-		if (overIsSidebarRoot) {
-			setItems((prev) =>
-				prev.map((item) =>
-					item.id === draggedId ? { ...item, parentId: null } : item,
-				),
-			);
-			return;
-		}
+			if (!overItem) return prev;
 
-		if (!overItem) return;
-		if (overItem.type === "bot") return;
+			// ❌ não pode dropar em bot
+			if (overItem.type === "bot") return prev;
 
-		if (activeZone === "SIDEBAR" && overZone === "SIDEBAR") {
-			if (isDescendant(draggedId, overId) || isDescendant(overId, draggedId))
-				return;
-			setItems((prev) =>
-				prev.map((item) =>
+			// ❌ evitar loop de hierarquia
+			if (isDescendant(draggedId, overId) || isDescendant(overId, draggedId)) {
+				return prev;
+			}
+
+			// ✅ SIDEBAR → SIDEBAR
+			if (activeZone === "SIDEBAR" && overZone === "SIDEBAR") {
+				return prev.map((item) =>
 					item.id === draggedId ? { ...item, parentId: overItem.id } : item,
-				),
-			);
-			return;
-		}
+				);
+			}
 
-		if (activeZone === "GRID" && overZone === "GRID") {
-			if (isDescendant(draggedId, overId) || isDescendant(overId, draggedId))
-				return;
-			setItems((prev) =>
-				prev.map((item) =>
+			// ✅ GRID → GRID
+			if (activeZone === "GRID" && overZone === "GRID") {
+				return prev.map((item) =>
 					item.id === draggedId ? { ...item, parentId: overItem.id } : item,
-				),
-			);
-			return;
-		}
+				);
+			}
 
-		if (activeZone === "GRID" && overZone === "SIDEBAR") {
-			if (isDescendant(draggedId, overId) || isDescendant(overId, draggedId))
-				return;
-			setItems((prev) =>
-				prev.map((item) =>
+			// ✅ GRID → SIDEBAR
+			if (activeZone === "GRID" && overZone === "SIDEBAR") {
+				return prev.map((item) =>
 					item.id === draggedId ? { ...item, parentId: overItem.id } : item,
-				),
-			);
-		}
+				);
+			}
+
+			return prev;
+		});
 	}
 
 	return (
 		<DndContext
 			sensors={sensors}
-			collisionDetection={closestCenter}
+			collisionDetection={pointerWithin}
 			onDragEnd={handleDragEnd}
 		>
 			{children}

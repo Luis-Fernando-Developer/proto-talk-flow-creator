@@ -123,7 +123,7 @@ export default function FolderPage() {
 
 	// 🔥 ROOT DA GRID (IMPORTANTE)
 	const { setNodeRef, isOver } = useDroppable({
-		id: "GRID_ROOT",
+		id: "GRID_ROOT_FOLDER",
 		data: {
 			zone: "GRID",
 		},

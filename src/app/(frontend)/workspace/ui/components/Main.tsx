@@ -20,7 +20,7 @@ export default function WorkspaceMain() {
 	const currentItems = items.filter((item) => item.parentId === currentFolderId);
 
 	const { setNodeRef, isOver } = useDroppable({
-		id: "GRID_ROOT",
+		id: "GRID_ROOT_MAIN",
 		data: {
 			zone: "GRID",
 		},
