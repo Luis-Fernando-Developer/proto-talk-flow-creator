@@ -4,6 +4,7 @@ import Header from "./ui/components/Header";
 import { Toaster } from "@/components/ui/toaster";
 import { WorkspaceProvider } from "./context/WorkspaceContext";
 import AddOptionToolbar from "./ui/components/AddOptionToolbar";
+import DnDProvider from "./context/DnDProvider";
 
 import {
 	Dialog,
@@ -26,7 +27,9 @@ export default function WorkspaceLayout({
 }) {
 	return (
 		<WorkspaceProvider>
-			<WorkspaceLayoutContent>{children}</WorkspaceLayoutContent>
+			<DnDProvider>
+				<WorkspaceLayoutContent>{children}</WorkspaceLayoutContent>
+			</DnDProvider>
 		</WorkspaceProvider>
 	);
 }
@@ -36,11 +39,11 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 
 	const pathname = usePathname();
 
-	const showToolbar = pathname === "/workspace" ||	pathname.startsWith("/workspace/folder/");
+	const showToolbar =
+		pathname === "/workspace" || pathname.startsWith("/workspace/folder/");
 
 	const [openModalADD, setOpenModalADD] = useState(false);
 	const [addOption, setAddOption] = useState<"folder" | "bot">("folder");
-
 
 	const [folderName, setFolderName] = useState("");
 	const [folderDescription, setFolderDescription] = useState("");
@@ -63,7 +66,6 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 	const [botEmoji, setBotEmoji] = useState<string>(defaultBotEmoji);
 
 	const currentFolderId = getCurrentFolderId();
-
 
 	function createFolder() {
 		setItems((prev) => [
@@ -110,7 +112,7 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 			<Header />
 			<Breadcrumb />
 			<div className="flex-1 flex relative overflow-hidden">
-				<div className='flex '>
+				<div className="flex ">
 					<FoldersSidebarNavigation />
 					{showToolbar && (
 						<div className="px-3 pt-3 ">
@@ -128,7 +130,9 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 					)}
 				</div>
 				<main className="flex flex-1 w-full border border-red-600 overflow-hidden">
-					<div className=" w-full flex items-start justify-center flex-1 border border-green-600 overflow-y-auto">{children}</div>
+					<div className=" w-full flex items-start justify-center flex-1 border border-green-600 overflow-y-auto">
+						{children}
+					</div>
 					<Toaster />
 				</main>
 			</div>
