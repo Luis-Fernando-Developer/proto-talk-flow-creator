@@ -129,8 +129,8 @@ function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
 						</div>
 					)}
 				</div>
-				<main className="flex flex-1 w-full border border-red-600 overflow-hidden">
-					<div className=" w-full flex items-start justify-center flex-1 border border-green-600 overflow-y-auto">
+				<main className="flex flex-1 overflow-hidden">
+					<div className=" w-full px-0 overflow-y-auto">
 						{children}
 					</div>
 					<Toaster />

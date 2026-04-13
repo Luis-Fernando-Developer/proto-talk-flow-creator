@@ -13,7 +13,7 @@ export default function Header() {
     <div className='absolute top-0 left-0 h-16 w-full bg-gray-800 text-white flex flex-col justify-between py-2 px-9'>
       <h1 className='w-full text-center'>Talk-Flow-Creator</h1>
       <div className=' flex w-full justify-between'>
-        <span>WORKSPACE</span>
+        <span onClick={() => router.push("/workspace/")}>WORKSPACE</span>
         <DropdownMenu.Root >
           <DropdownMenu.Trigger asChild >
             <Settings className='relative z-10 w-6 h-6 cursor-pointer' />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 import FolderIcon from "./FolderIcon";
 import BotIcon from "./BotIcon";
@@ -10,14 +10,18 @@ import { useDroppable } from "@dnd-kit/core";
 import { useWorkspace } from "../../context/WorkspaceContext";
 
 export default function WorkspaceMain() {
-	const router = useRouter();
+	// const router = useRouter();
 
-	const { items, setItems } = useWorkspace();
+	const { items, activeId } = useWorkspace();
 
 	const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
 	const [currentBotId, setCurrentBotId] = useState<string | null>(null);
 
-	const currentItems = items.filter((item) => item.parentId === currentFolderId);
+	// 🔥 CORREÇÃO REAL AQUI
+	const currentItems = items.filter((item) => {
+		if (item.id === activeId) return true;
+		return item.parentId === currentFolderId;
+	});
 
 	const { setNodeRef, isOver } = useDroppable({
 		id: "GRID_ROOT_MAIN",
@@ -33,13 +37,13 @@ export default function WorkspaceMain() {
 	return (
 		<div
 			ref={setNodeRef}
-			className={`w-full h-full flex px-3 gap-3 ${isOver ? "bg-blue-50" : ""}`}
+			className={`w-full h-full flex px-0 ${isOver ? "" : ""}`}
 		>
 			<div
-				className={` pt-3 h-full  w-full ${
+				className={`pt-3 h-full w-full ${
 					items.length > 0
-						? "flex flex-col items-start justify-start h-full border-2 border-yellow-400 "
-						: "flex items-center border-2 border-black"
+						? "flex flex-col w-full items-start justify-start "
+						: "flex items-center "
 				}`}
 			>
 				{currentItems.length > 0 ? (
@@ -52,7 +56,7 @@ export default function WorkspaceMain() {
 										emojiIcon={item.emoji}
 										title={item.title}
 										description={item.description}
-										router={router}
+										// router={router}
 										setCurrentFolderId={setCurrentFolderId}
 									/>
 								) : (
@@ -70,7 +74,7 @@ export default function WorkspaceMain() {
 						))}
 					</div>
 				) : (
-					<div className="text-gray-500 flex h-full w-full flex-col justify-center items-center ">
+					<div className="text-gray-500 flex h-full w-full flex-col justify-center items-center">
 						<p>Nenhuma pasta criada</p>
 						<p>ou</p>
 						<p>bot adicionado</p>

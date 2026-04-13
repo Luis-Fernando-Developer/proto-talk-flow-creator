@@ -1,4 +1,6 @@
-import { useState, type CSSProperties } from "react";
+"use client";
+
+import { useState, CSSProperties } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useWorkspace } from "../../context/WorkspaceContext";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -28,159 +30,173 @@ export default function FoldersSidebarNavigation() {
 		if (!currentFolderId) return false;
 
 		let node = items.find((it) => it.id === currentFolderId);
+
 		while (node) {
 			if (node.parentId === folderId) return true;
-			const parentId = node.parentId;
-			node = parentId ? items.find((it) => it.id === parentId) : undefined;
+			node = node.parentId
+				? items.find((it) => it.id === node!.parentId)
+				: undefined;
 		}
+
 		return false;
 	}
 
-	const { setNodeRef: setSidebarRootRef, isOver: isSidebarRootOver } =
-		useDroppable({
-			id: "SIDEBAR_ROOT",
-			data: {
-				zone: "SIDEBAR",
-			},
-		});
+	// 🔥 REGRA: só renderiza se tiver pasta OU bot
+	const { setNodeRef } = useDroppable({
+		id: "SIDEBAR_ROOT",
+	});
 
-	function renderTree(parentId: string | null, level = 0) {
+	const hasSidebarContent = items.some(
+		(item) => item.type === "folder" || item.type === "bot",
+	);
+
+	if (!hasSidebarContent) return null;
+
+
+	function renderTree(parentId: string | null, level = 0): any {
 		return items
-			.filter((item) => item.parentId === parentId && item.type === "folder")
+			.filter((i) => i.parentId === parentId && i.type )
 			.map((folder) => (
-				<SidebarFolderRow
+				<SidebarItem
 					key={folder.id}
 					folder={folder}
 					level={level}
 					isOpen={openFolders.includes(folder.id)}
 					onToggle={() => toggleFolder(folder.id)}
-					isSelected={currentFolderId === folder.id}
-					childSelected={folderHasSelectedDescendant(folder.id)}
 					renderTree={renderTree}
+					currentFolderId={currentFolderId}
+					childSelected={folderHasSelectedDescendant(folder.id)}
 					hasChildren={items.some(
-						(item) => item.parentId === folder.id && item.type === "folder",
+						(item) => item.parentId === folder.id && item.type 
 					)}
 				/>
 			));
 	}
 
-	const hasFolders = items.some((item) => item.type === "folder");
-	if (!hasFolders) return null;
+	return (
+		<div
+			ref={setNodeRef}
+			className=" max-w-44 min-w-44 flex  bg-gray-800 h-full overflow-x-hidden"
+			style={{ userSelect: "none" }}
+		>
+			<div className="pt-3 max-w-44 min-w-44 flex flex-col h-full px-2 gap-2 overflow-x-hidden ">
+				{renderTree(null)}
+			</div>
+		</div>
+	);
+}
+
+function SidebarItem({
+	folder,
+	level,
+	isOpen,
+	onToggle,
+	renderTree,
+	currentFolderId,
+	childSelected,
+	hasChildren,
+}: any) {
+	const router = useRouter();
+
+	const {
+		attributes,
+		listeners,
+		setNodeRef: setDragRef,
+		transform,
+		isDragging,
+	} = useDraggable({
+		id: `sidebar-${folder.id}`,
+		data: {
+			originalId: folder.id,
+		},
+	});
+
+	const { setNodeRef: setDropRef, isOver } = useDroppable({
+		id: folder.id,
+	});
+
+	const style: CSSProperties = {
+		transform: transform
+			? `translate3d(${Math.min(transform.x, 0)}px, ${transform.y}px, 0)`
+			: undefined,
+		opacity: isDragging ? 0.5 : 1,
+	};
+
+	const isSelected = currentFolderId === folder.id;
+
+	const containerBg = isSelected
+		? "bg-gray-700"
+		: childSelected
+			? "bg-gray-600"
+			: "bg-white";
+
+	const titleColor =
+		isSelected || childSelected ? "text-white" : "text-gray-500";
+
+const borderClass = isSelected ? "border border-white" :  "border border-black";	
+
+	let stateClass = ''
+	if (isOpen && isSelected) {
+		stateClass = "bg-green-600 text-white";
+	} else if (!isOpen && childSelected) {
+		stateClass = "bg-green-800 text-white";
+	} else if (isOpen && !isSelected) {
+		stateClass = "bg-green-400 text-white";
+	} else if (childSelected) {
+		stateClass	= "bg-yellow-500 text-black ";
+	} else {
+		stateClass = "bg-green-400 text-white border border-red-400";
+	}
+
+	const iconClass = `w-4 h-4 rounded-full ${stateClass} ${borderClass}`;
 
 	return (
 		<div
-			ref={setSidebarRootRef}
-			className={`pt-3 max-w-44 min-w-44 px-2 bg-gray-800 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900 border border-red-600 ${
-				isSidebarRootOver ? "bg-blue-800/50" : ""
-			}`}
+			ref={setDropRef}
+			style={{
+				paddingLeft: `${level * 8 + 0}px`,
+				display: "flex",
+				flexDirection: "column",
+				gap: "3px",
+			}}
+			className={` rounded-md ${isOver ? "bg-blue-400/50 relative" : ""}`}
 		>
-			{isSidebarRootOver ? (
-				<div className="mb-3 rounded-md bg-blue-600 px-2 py-1 text-xs font-semibold text-white">
-					Solte aqui para mover para o nível principal
-				</div>
-			) : null}
-			{renderTree(null)}
+			<div
+				ref={setDragRef}
+				{...listeners}
+				{...attributes}
+				style={style}
+				onClick={() => {
+					if (isDragging) return;
+					router.push(`/workspace/folder/${folder.id}`);
+				}}
+				className={`flex  items-center gap-2 px-1 py-1 rounded-lg cursor-grab active:cursor-grabbing select-none shadow-[0px_0px_5px_1px] shadow-black ${containerBg} ${
+					isOver ? "ring-2 ring-blue-400" : ""
+				}`}
+			>
+				<span>{folder.emoji || ""}</span>
+
+				<span
+					className={`flex-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap ${titleColor}`}
+				>
+					{folder.title}
+				</span>
+				{hasChildren ? (
+					<span
+						onClick={(e) => {
+							e.stopPropagation();
+							onToggle();
+						}}
+					>
+						{isOpen ? (
+							<ChevronDown className={iconClass} />
+						) : (
+							<ChevronRight className={iconClass} />
+						)}
+					</span>
+				) : null}
+			</div>
+			{isOpen && renderTree(folder.id, level + 1)}
 		</div>
 	);
-
-	function SidebarFolderRow({
-		folder,
-		level,
-		isOpen,
-		onToggle,
-		isSelected,
-		childSelected,
-		renderTree,
-		hasChildren,
-	}: {
-		folder: {
-			id: string;
-			title: string;
-			emoji?: string;
-		};
-		level: number;
-		isOpen: boolean;
-		onToggle: () => void;
-		isSelected: boolean;
-		childSelected: boolean;
-		renderTree: (parentId: string | null, level?: number) => any;
-		hasChildren: boolean;
-	}) {
-		const { attributes, listeners, setNodeRef, isDragging, transform } =
-			useDraggable({
-				id: folder.id,
-				data: {
-					zone: "SIDEBAR",
-					itemType: "folder",
-				},
-			});
-
-		const { setNodeRef: setDropRef, isOver } = useDroppable({
-			id: folder.id,
-			data: {
-				zone: "SIDEBAR",
-				itemType: "folder",
-			},
-		});
-
-		const style: CSSProperties = {
-			opacity: isDragging ? 0.5 : 1,
-			transform: transform
-				? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-				: undefined,
-		};
-
-		const containerBg = isSelected
-			? "bg-gray-700"
-			: childSelected
-				? "bg-gray-600"
-				: "bg-white";
-		const titleColor =
-			isSelected || childSelected ? "text-white" : "text-gray-500";
-
-		return (
-			<div
-				ref={(node) => {
-					setNodeRef(node);
-					setDropRef(node);
-				}}
-				style={{ paddingLeft: `${level * 12 + 4}px`, ...style }}
-				className={`rounded-lg flex flex-col space-y-1 mb-2 ${isOver ? "bg-blue-100" : ""}`}
-			>
-				<div
-					onClick={() => {
-						if (isDragging) return;
-						router.push(`/workspace/folder/${folder.id}`);
-					}}
-					className={`flex items-center rounded-lg shadow-[1px_1px_5px_1px] shadow-black gap-1 px-1 py-1 cursor-pointer ${containerBg}`}
-					{...attributes}
-				>
-					<div {...listeners} className="flex items-center gap-1">
-						<span>{folder.emoji || ""}</span>
-					</div>
-					<span
-						className={`flex-1 text-sm overflow-hidden mr-2 text-ellipsis whitespace-nowrap ${titleColor}`}
-					>
-						{folder.title}
-					</span>
-					{hasChildren ? (
-						<span
-							onClick={(e) => {
-								e.stopPropagation();
-								onToggle();
-							}}
-							className="text-sm"
-						>
-							{isOpen ? (
-								<ChevronDown className="w-4 h-4 text-gray-200" />
-							) : (
-								<ChevronRight className="w-4 h-4 text-gray-200" />
-							)}
-						</span>
-					) : null}
-				</div>
-				{isOpen ? renderTree(folder.id, level + 1) : null}
-			</div>
-		);
-	}
 }

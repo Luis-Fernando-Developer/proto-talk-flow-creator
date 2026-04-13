@@ -1,64 +1,78 @@
-"use client"
+"use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-
 type typeItem = {
- id: string
- title: string
- description: string
- emoji: string
- parentId: string | null
- type: "folder" | "bot"
-}
+	id: string;
+	title: string;
+	description: string;
+	emoji: string;
+	parentId: string | null;
+	type: "folder" | "bot";
+};
 
 type WorkspaceContextType = {
- items: typeItem[]
- setItems: React.Dispatch<React.SetStateAction<typeItem[]>>
-}
+	items: typeItem[];
+	setItems: React.Dispatch<React.SetStateAction<typeItem[]>>;
+
+	// 🔥 NOVO
+	activeId: string | null;
+	setActiveId: React.Dispatch<React.SetStateAction<string | null>>;
+};
 
 const WorkspaceContext = createContext<WorkspaceContextType | null>(null);
 
-export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
- 
- const [items, setItems] = useState<typeItem[]>([]);
+export function WorkspaceProvider({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
+	const [items, setItems] = useState<typeItem[]>([]);
 
- useEffect(() => {
-   try {
-     const raw = localStorage.getItem('workspace_folders_v1');
-     if (raw) {
-       const parsed = JSON.parse(raw) as typeItem[];
+	// 🔥 NOVO
+	const [activeId, setActiveId] = useState<string | null>(null);
 
-       if (Array.isArray(parsed)) {
-         setItems(parsed);
-       }
-     }
-   } catch (error) {
-     console.error('Falha ao ler pastas do localStorage', error);
-   }
- }, []);
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem("workspace_folders_v1");
+			if (raw) {
+				const parsed = JSON.parse(raw) as typeItem[];
 
- useEffect(() => {
-  try {
-   localStorage.setItem('workspace_folders_v1', JSON.stringify(items));
-  } catch (error) {
-   console.error('Falha ao salvar pastas no localStorage', error);
-  }
- }, [items]);
+				if (Array.isArray(parsed)) {
+					setItems(parsed);
+				}
+			}
+		} catch (error) {
+			console.error("Falha ao ler pastas do localStorage", error);
+		}
+	}, []);
 
- return (
-   <WorkspaceContext.Provider value={{ items, setItems }}>
-      <div>
-      </div>
-     {children}
-   </WorkspaceContext.Provider>
- )
+	useEffect(() => {
+		try {
+			localStorage.setItem("workspace_folders_v1", JSON.stringify(items));
+		} catch (error) {
+			console.error("Falha ao salvar pastas no localStorage", error);
+		}
+	}, [items]);
+
+	return (
+		<WorkspaceContext.Provider
+			value={{
+				items,
+				setItems,
+				activeId,
+				setActiveId,
+			}}
+		>
+			{children}
+		</WorkspaceContext.Provider>
+	);
 }
 
 export function useWorkspace() {
- const context = useContext(WorkspaceContext);
- if (!context) {
-   throw new Error("useWorkspace must be used within a WorkspaceProvider");
- }
- return context;
-};
+	const context = useContext(WorkspaceContext);
+	if (!context) {
+		throw new Error("useWorkspace must be used within a WorkspaceProvider");
+	}
+	return context;
+}
