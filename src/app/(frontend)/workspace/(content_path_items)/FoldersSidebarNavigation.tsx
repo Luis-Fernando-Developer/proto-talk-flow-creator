@@ -2,7 +2,7 @@
 
 import { useState, CSSProperties } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useWorkspace } from "../../context/WorkspaceContext";
+import { useWorkspace } from "../context/WorkspaceContext";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 
@@ -52,10 +52,9 @@ export default function FoldersSidebarNavigation() {
 
 	if (!hasSidebarContent) return null;
 
-
 	function renderTree(parentId: string | null, level = 0): any {
 		return items
-			.filter((i) => i.parentId === parentId && i.type )
+			.filter((i) => i.parentId === parentId && i.type)
 			.map((folder) => (
 				<SidebarItem
 					key={folder.id}
@@ -67,7 +66,7 @@ export default function FoldersSidebarNavigation() {
 					currentFolderId={currentFolderId}
 					childSelected={folderHasSelectedDescendant(folder.id)}
 					hasChildren={items.some(
-						(item) => item.parentId === folder.id && item.type 
+						(item) => item.parentId === folder.id && item.type,
 					)}
 				/>
 			));
@@ -133,9 +132,9 @@ function SidebarItem({
 	const titleColor =
 		isSelected || childSelected ? "text-white" : "text-gray-500";
 
-const borderClass = isSelected ? "border border-white" :  "border border-black";	
+	const borderClass = isSelected ? "border border-white" : "border border-black";
 
-	let stateClass = ''
+	let stateClass = "";
 	if (isOpen && isSelected) {
 		stateClass = "bg-green-600 text-white";
 	} else if (!isOpen && childSelected) {
@@ -143,7 +142,7 @@ const borderClass = isSelected ? "border border-white" :  "border border-black";
 	} else if (isOpen && !isSelected) {
 		stateClass = "bg-green-400 text-white";
 	} else if (childSelected) {
-		stateClass	= "bg-yellow-500 text-black ";
+		stateClass = "bg-yellow-500 text-black ";
 	} else {
 		stateClass = "bg-green-400 text-white border border-red-400";
 	}
