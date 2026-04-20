@@ -37,13 +37,13 @@ export default function WorkspaceMain() {
 	return (
 		<div
 			ref={setNodeRef}
-			className={`w-full h-full flex px-0 ${isOver ? "" : ""}`}
+			className={`w-full flex-1 px-0 ${isOver ? "" : ""}`}
 		>
 			<div
-				className={`pt-3 h-full w-full ${
+				className={`py-3 w-full ${
 					items.length > 0
 						? "flex flex-col w-full items-start justify-start "
-						: "flex items-center "
+						: "flex items-center w-full "
 				}`}
 			>
 				{currentItems.length > 0 ? (
@@ -74,7 +74,7 @@ export default function WorkspaceMain() {
 						))}
 					</div>
 				) : (
-					<div className="text-gray-500 flex w-full mt-14 flex-col justify-center items-center border-2 border-red-600">
+					<div className="text-gray-500 flex w-full flex-col justify-center  items-center">
 						<p>Nenhuma pasta criada</p>
 						<p>ou</p>
 						<p>bot adicionado</p>

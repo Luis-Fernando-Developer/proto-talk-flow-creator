@@ -10,7 +10,7 @@ export default function Header() {
   const router = useRouter();
 
   return (
-    <div className='absolute top-0 left-0 h-16 w-full bg-gray-800 text-white flex flex-col justify-between py-2 px-9'>
+    <div className='fixed top-0  left-0 h-16 w-full bg-gray-800 text-white flex flex-col justify-between py-2 px-9 z-[99]'>
       <h1 className='w-full text-center'>Talk-Flow-Creator</h1>
       <div className=' flex w-full justify-between'>
         <span onClick={() => router.push("/workspace/")}>WORKSPACE</span>

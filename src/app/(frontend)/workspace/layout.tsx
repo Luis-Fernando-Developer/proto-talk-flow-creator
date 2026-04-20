@@ -12,8 +12,16 @@ export default function WorkspaceLayout({
 	return (
 		<WorkspaceProvider>
 			<DnDProvider>
-				<Header />
-				{children}
+        <div className="flex w-full flex-col h-svh relative">
+          <div>
+            <Header />
+          </div>
+            {children}
+          {/*<div className="flex-1 w-full border-2 h-full border-red-600 ">
+            <div className="flex-1 h-full border-2 border-yellow-400 ">
+            </div>
+          </div> */}
+        </div>
 			</DnDProvider>
 		</WorkspaceProvider>
 	);

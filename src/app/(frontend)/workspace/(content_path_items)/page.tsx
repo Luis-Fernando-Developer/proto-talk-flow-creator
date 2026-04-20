@@ -1,5 +1,5 @@
 import React from "react";
-import WorkspaceMain from "./(content_path_items)/Main";
+import WorkspaceMain from "./Main";
 // import UserProfile from './perfil/page'
 
 export default function Workspace() {

@@ -78,7 +78,7 @@ export default function FoldersSidebarNavigation() {
 			className=" max-w-44 min-w-44 flex  bg-gray-800 h-full overflow-x-hidden"
 			style={{ userSelect: "none" }}
 		>
-			<div className="pt-3 max-w-44 min-w-44 flex flex-col h-full px-2 gap-2 overflow-x-hidden ">
+			<div className="py-3 max-w-44 min-w-44 flex flex-col h-full px-2 gap-2 overflow-x-hidden ">
 				{renderTree(null)}
 			</div>
 		</div>

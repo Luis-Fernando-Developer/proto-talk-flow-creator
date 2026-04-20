@@ -1,12 +1,13 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useWorkspace } from "../../context/WorkspaceContext";
+
 
 import { useState } from "react";
-import FolderIcon from "../../(content_path_items)/FolderIcon";
-import BotIcon from "../../(content_path_items)/BotIcon";
+import FolderIcon from "../../FolderIcon";
+import BotIcon from "../../BotIcon";
 import { useDroppable } from "@dnd-kit/core";
+import { useWorkspace } from "../../../context/WorkspaceContext";
 
 export default function FolderPage() {
 	const router = useRouter();
@@ -29,13 +30,13 @@ export default function FolderPage() {
 	return (
 		<div
 			ref={setNodeRef}
-			className={`b w-full h-full flex px-0 ${isOver ? "" : ""}`}
+			className={`w-full flex-1 px-0 ${isOver ? "" : ""}`}
 		>
 			<div
-				className={`pt-3 h-full w-full ${
+				className={`py-3 w-full ${
 					items.length > 0
 						? "flex flex-col w-full items-start justify-start "
-						: "flex items-center "
+						: "flex items-center w-full "
 				}`}
 			>
 				{currentItems.length > 0 ? (
